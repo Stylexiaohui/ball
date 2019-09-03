@@ -102,67 +102,83 @@ void pink()
   }
   digitalWrite(orderRun, LOW);
 }
+
+/**
+ * @brief 准备函数
+ * @notes 
+ */
 void Ready()
 {
   Serial.println("Ready");  
   delay(2);
   int bu = digitalRead(pushButtonU);
   int bm = !digitalRead(pushButtonM);
+
+  ///寻找最右限位开关
   while(bu && bm)
   {
       Step(50);
-//      ba = digitalRead(pushButtonA);
       bu = digitalRead(pushButtonU);
       bm = !digitalRead(pushButtonM);
       Serial.println("***************");
+  }
+  ///如果找到最右限位就反转找光电门
+  if (!bu)
+  {
+    digitalWrite(dirPin, HIGH);
+    while(bm)
+    {
+      Step(50);
+      bm = !digitalRead(pushButtonM);
+      Serial.println("********U-M");
+      Serial.println(digitalRead(pushButtonM));
     }
-          if (!bu)
-           {
-            digitalWrite(dirPin, HIGH);
-            while(bm)
-        {
-          Step(50);
-          bm = !digitalRead(pushButtonM);
-          Serial.println("********U-M");
-          Serial.println(digitalRead(pushButtonM));
-          }
-           }
+  }
 }
 
 void loop()
-{Serial.println(digitalRead(dirPin));
+{
+  Serial.println(digitalRead(dirPin));
   Serial.println("loop");
   delay(2);
   int data = 0;
+///主机发来靠边信号
   for (int i = 0; i < 10; i++)
   {
     delay(2);
     data += digitalRead(orderPin);
   }
   if (data < 5)
-  {Serial.println("judge");
-  Ready();
-  delay(3000);
-  int color1=0,color2=0;
-  for (int a = 0; a < 20; a++)
   {
-    delay(2);
-    color1 += digitalRead(colorPin1);
-    color2 += digitalRead(colorPin2);
-  }
-  if (color1 <10)
+    Serial.println("judge");
+    Ready();
+    delay(3000);
+    int color1=0,color2=0;
+    for (int a = 0; a < 20; a++)
+    {
+      delay(2);
+      color1 += digitalRead(colorPin1);
+      color2 += digitalRead(colorPin2);
+    }
+    if (color1 <10)
     {
       if(color2>=10)
       pink();
-      else {digitalWrite(orderRun,HIGH);Serial.println("跑");}
+      else 
+      {
+        digitalWrite(orderRun,HIGH);
+        Serial.println("跑");
+      }
     }
-  else {
+    else
+    {
          digitalWrite(orderSend,HIGH);
          if(color2<10)
          {
           use();
          }
          else pink();
-       }}
+       }
+    }
     
 }
