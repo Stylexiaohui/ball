@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <RGBConverter.h>
 SoftwareSerial mySerial(10,11); // RX, TX
 unsigned char Re_buf[11], counter = 0;
 unsigned char sign = 0;
@@ -11,6 +12,8 @@ byte g = {0};
 int state=1;
 //byte data[20][3] = {0};
 //***********************************************添加部分****************************
+
+double HSV[3] = {0,0,0};
 
 void setup() {
   Serial.begin(9600);
@@ -46,7 +49,9 @@ void gather()
       sum += Re_buf[i];
     if (sum == Re_buf[i] )     //检查帧头，帧尾
     {
-
+      rgb[0] = Re_buf[4];
+      rgb[1] = Re_buf[5];
+      rgb[2] = Re_buf[6];
       g = Re_buf[6];
       Serial.print("g:");
       Serial.println(g, DEC);
@@ -143,6 +148,11 @@ void gather()
  *白色球 r:255,g:255,b:255   765
  *粉色球 r:255,g:191,b:255   701
  */   
+ /*
+  * 粉r:170,g:93,b:110
+  * r:252,g:118,b:149
+  * r:255,g:5  9,b:70
+  */
            }
            }
 }

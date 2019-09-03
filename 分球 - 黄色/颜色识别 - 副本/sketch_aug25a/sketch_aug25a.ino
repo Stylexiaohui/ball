@@ -1,29 +1,19 @@
-
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial(10,11); // RX, TX
 unsigned char Re_buf[11], counter = 0;
 unsigned char sign = 0;
-byte g = {0};
+byte r={0},g = {0};
 #define con 20
-#define Switch 5//A0
+#define Switch A0
 #define State 2
-#define orderOut1 7//3
-#define orderOut2 8//4
+#define orderOut1 3
+#define orderOut2 4
 int state=1;
-//***********************************************
-#define orderSend 2
-#define stepPin 3
-#define dirPin 4
-#define orderPin A0
-#define orderBack A1
-#define pushButtonA A4
-#define pushButtonM A3
-#define pushButtonU A2
-#define colorPin1 A5
-#define colorPin2 6
+//byte data[20][3] = {0};
+//***********************************************添加部分****************************
 
 void setup() {
-    Serial.begin(9600);
+  Serial.begin(9600);
  // Serial.print("hello");
   mySerial.begin(9600);
   delay(1);
@@ -36,26 +26,15 @@ void setup() {
   digitalWrite(orderOut1,LOW);
   digitalWrite(orderOut2,LOW);
   
-  //************************************
   
-  Serial.begin(9600);
-  pinMode(stepPin, OUTPUT);   
-  pinMode(dirPin, OUTPUT);
-  pinMode(orderSend, OUTPUT);
-  pinMode(orderPin, INPUT_PULLUP);
-  pinMode(orderBack, INPUT_PULLUP);
-  pinMode(pushButtonA, INPUT_PULLUP);
-  pinMode(pushButtonM, INPUT_PULLUP);
-  pinMode(pushButtonU, INPUT_PULLUP);
-  pinMode(colorPin1, INPUT_PULLUP);
-  pinMode(colorPin2, INPUT_PULLUP);
-  digitalWrite(stepPin, LOW);
-  digitalWrite(dirPin, LOW);
-  digitalWrite(orderSend, LOW);
-  
+/*
+#define orderIn A0
+#define Switch A1
+#define orderOut1 3
+#define orderOut2 4
+
+*/
 }
-
-
 void gather() 
 {
   unsigned char i = 0, sum = 0;
@@ -68,7 +47,7 @@ void gather()
     if (sum == Re_buf[i] )     //检查帧头，帧尾
     {
 
-      g = Re_buf[5];
+      g = Re_buf[6];
       Serial.print("g:");
       Serial.println(g, DEC);
     }
@@ -102,6 +81,10 @@ void gather()
     judge();
    }
    else{
+//黑色 r:49,g:62,b:58
+//粉色 r:255,g:181,b:236
+//黄色 r:255,g:255,b:123
+//白色 r:255,g:255,b:255
          Serial.println(aver);
          if(aver<90)  
            {
@@ -110,7 +93,6 @@ void gather()
               {
                 digitalWrite(orderOut1,LOW);
                 digitalWrite(orderOut2,HIGH);
-                abandon();
                 Serial.print("丢弃");
               }
             else 
@@ -118,22 +100,33 @@ void gather()
                 digitalWrite(orderOut1,HIGH);
                 digitalWrite(orderOut2,LOW);
                 Serial.print("使用");
-                use();
               }
            }
-           else if(aver<215)
-                {
-                  Serial.println("粉红");
-                  digitalWrite(orderOut1,HIGH);
-                  digitalWrite(orderOut2,HIGH);
-                  }
-                else if(state)
+           //黑色 r:49,g:62,b:58
+//粉色 r:255,g:181,b:236
+//黄色 r:255,g:255,b:123
+//白色 r:255,g:255,b:255
+           else {
+                  if(aver<150)
+                    {
+                    digitalWrite(orderOut1,LOW);
+                    digitalWrite(orderOut2,LOW);Serial.println("跑");
+                    }
+                  else 
+                  {
+                    if(aver<242)
+                     {
+                      Serial.println("粉红");
+                      digitalWrite(orderOut1,HIGH);
+                      digitalWrite(orderOut2,HIGH);
+                     }
+                    else  {
+                      if(state)
                      {
                       Serial.println("白色");
                        digitalWrite(orderOut1,HIGH);
                        digitalWrite(orderOut2,LOW);
-                      Serial.print("粉红色");
-                      pink();
+                      Serial.print("使用");
                       }
                       else
                       {
@@ -141,158 +134,26 @@ void gather()
                         digitalWrite(orderOut1,LOW);
                        digitalWrite(orderOut2,HIGH);
                         Serial.println("丢弃");
-                        abandon();
                         
                         }
+                    }
+                    }
        /*
  *黑色球 r:51,g:64,b:63      178
  *白色球 r:255,g:255,b:255   765
  *粉色球 r:255,g:191,b:255   701
- */
- 
-
-  
-       }
-}
-void Step(int s)
-{
-  for (int a = 0; a < s; a++)
-  {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(1000);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(1000);
-  }
-  Serial.print("电机:  ");Serial.println(s);
-}
-void abandon()
-{
-  digitalWrite(dirPin, LOW);
-  delay(5);
-  int ba = digitalRead(pushButtonA);
-  int bu = digitalRead(pushButtonU);
-  int bm = digitalRead(pushButtonM);
-  while(ba && bu)
-  {
-      Step(50);
-      ba = digitalRead(pushButtonA);
-      bu = digitalRead(pushButtonU);
-      Serial.println("Abandon");
-    }
-  digitalWrite(dirPin, HIGH);
-  Serial.println("丢弃");
-  digitalWrite(orderSend,LOW);
-}
-void use()
-{
-  digitalWrite(dirPin, HIGH);
-  if (digitalRead(orderBack))//炮台就绪时拉高电位
-  {
-    int ba = digitalRead(pushButtonA);
-    int bu = digitalRead(pushButtonU);
-    int bm = digitalRead(pushButtonM);
-    while(ba && bu)
-  {
-      Step(50);
-      ba = digitalRead(pushButtonA);
-      bu = digitalRead(pushButtonU);
-      Serial.println("Use");
-    }
-    digitalWrite(dirPin, LOW);
-    Serial.println("使用");
-    digitalWrite(orderSend,LOW);
-  }
-    Serial.println("Use");
-}
-void pink()
-{
-  Serial.println("Pink");
-  digitalWrite(dirPin, HIGH);Serial.println(digitalRead(orderBack));
-  if (digitalRead(orderBack))//炮台就绪时拉高电位 
-  {
-    int ba = digitalRead(pushButtonA);
-    int bu = digitalRead(pushButtonU);Serial.println("123");
-    int bm = digitalRead(pushButtonM);Serial.println(digitalRead(pushButtonA));Serial.println(digitalRead(pushButtonA));
-        while(ba && bu)
-  {
-      Step(50);Serial.println("12356+");
-      ba = digitalRead(pushButtonA);
-      bu = digitalRead(pushButtonU);
-      Serial.println(ba);
-      Serial.println(bu);
-    }
-    digitalWrite(dirPin, LOW);
-    Serial.println("粉色");
-    digitalWrite(orderSend,LOW);
-  }
-}
-void Ready()
-{
-  Serial.println("Ready");  
-  delay(2);
-  int ba = digitalRead(pushButtonA);
-  int bu = digitalRead(pushButtonU);
-  int bm = digitalRead(pushButtonM);
-  while(ba && bu && bm)
-  {
-      Step(50);
-      ba = digitalRead(pushButtonA);
-      bu = digitalRead(pushButtonU);
-      bm = digitalRead(pushButtonM);
-      Serial.println("***************");
-    }
-  if (!ba)
-      {
-        digitalWrite(dirPin, LOW);
-        while(bm&&bu)
-        {
-          Step(50);
-          bm = digitalRead(pushButtonM);
-          bu = digitalRead(pushButtonU);
-          Serial.println("********A-M");
-          Serial.println(analogRead(pushButtonM));
-          }
-      }
-    else {
-          if (!bu)
-           {
-            digitalWrite(dirPin, HIGH);
-            while(bm&&ba)
-        {
-          Step(50);
-          bm = digitalRead(pushButtonM);
-          ba = digitalRead(pushButtonA);
-          Serial.println("********U-M");
-       
-          Serial.println(analogRead(pushButtonM));Serial.println(digitalRead(pushButtonA));
-          }
+ */   
            }
-         }
+           }
 }
 void loop()
 {
-    float Data=0;
+  float Data=0;
   int i=0;
   for(i=0;i<10;i++)
   {delay(2);Data+=digitalRead(Switch);}
   if(Data>5) state=1;
   else state=0;
-  //***************************************************
-  Serial.println(digitalRead(dirPin));
-  Serial.println("loop");Serial.println(digitalRead(pushButtonA));Serial.println(digitalRead(pushButtonM));
-  Serial.println(digitalRead(pushButtonU));
-  delay(2);
-  int data = 0;
-  for (int i = 0; i < 10; i++)
-  {
-    delay(2);
-    data += digitalRead(orderPin);
-  }
-  if (data < 5)
-  {Serial.println("judge");
-  Ready();
-  delay(1000);
   judge();
-
-}
+  delay(10);
 }
