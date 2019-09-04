@@ -83,6 +83,13 @@ void use()
     Serial.println("Use");
     digitalWrite(orderRun, LOW);
 }
+
+/**
+ * @brief 识别到分球函数
+ * @note 要干两件事：1：告诉炮台球来了
+ *                  2：等炮台准备好
+ *                  3；
+ */
 void pink()
 {
   Serial.println("Pink");
@@ -105,7 +112,7 @@ void pink()
 
 /**
  * @brief 准备函数
- * @notes 
+ * @notes 先找最右限位再找光电门
  */
 void Ready()
 {
@@ -151,9 +158,13 @@ void loop()
   if (data < 5)
   {
     Serial.println("judge");
+    ///运球去射球
     Ready();
+    ///等待
     delay(3000);
     int color1=0,color2=0;
+
+    ///读取颜色板判断的颜色值
     for (int a = 0; a < 20; a++)
     {
       delay(2);
