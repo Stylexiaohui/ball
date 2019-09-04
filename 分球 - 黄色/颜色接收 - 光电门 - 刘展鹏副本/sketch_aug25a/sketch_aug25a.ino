@@ -15,9 +15,11 @@
 #define orderPin A0   //主机————>本机|“靠边”
 #define orderBack A1 //炮台————>本机|“炮台就绪”
 #define pushButtonM A3 //分球原点光电门
-#define pushButtonU A2 //送球限位
-#define colorPin1 A5 //颜色识别板————>本机
-#define colorPin2 6 //颜色识别板————>本机
+#define pushButtonU A2 //送球限位 A2+GND
+#define colorPin1 A5 //颜色识别板D3————>本机A5
+#define colorPin2 6 //颜色识别板D4————>本机6
+#define ATTACHED_pushButtonm digitalRead(pushButtonM)
+
 void setup() {
   Serial.begin(9600);
   
@@ -41,12 +43,19 @@ void loop()
   {
     Serial.println("judge");
     int color1=0,color2=0;
+    Serial.print("ATTACHED_pushButtonm");Serial.print(ATTACHED_pushButtonm);
     for (int a = 0; a < 20; a++)
     {
       delay(2);
-      color1 += digitalRead(colorPin1);
-      color2 += digitalRead(colorPin2);
+
+      if (ATTACHED_pushButtonm)
+      {
+        color1 += digitalRead(colorPin1);
+        color2 += digitalRead(colorPin2);
+      }
     }
+    Serial.print("color1：");Serial.print(color1);
+    Serial.print("  color2：");Serial.println(color2);
 /**
  * --------------------------------------------------------
  *    引脚\意义   |  丢弃  |   使用  |  粉色   |   跑    | 
@@ -70,11 +79,12 @@ void loop()
     { 
       if(color2<10)
       {//!我方球
-        use();
+      Serial.println("有用球");
+        use();     
       }
       else 
       {//!粉色
-        pink();
+        use();
       }
     }
   }
@@ -122,7 +132,7 @@ void Step(int s)
     digitalWrite(stepPin, LOW);
     delayMicroseconds(1000);
   }
-  Serial.print("电机:  ");Serial.println(s);
+  //Serial.print("电机:  ");Serial.println(s);
 }
 
 /**
@@ -143,7 +153,7 @@ void Step(int dir,int s)
     digitalWrite(stepPin, LOW);
     delayMicroseconds(1000);
   }
-  Serial.print("电机:  ");Serial.println(s);
+  //Serial.print("电机:  ");Serial.println(s);
 }
 
 /**
@@ -159,14 +169,8 @@ void use()
   while (digitalRead(orderBack)) {}
 
   //炮台就绪后送球上去
-  int bu = digitalRead(pushButtonU);
-  int bm = !digitalRead(pushButtonM);
-  while(bu)
-  {
-    Step(0,50);
-    bu = digitalRead(pushButtonU);
-  }
-    Serial.println("使用");
+   back_to_origin();
+   Serial.println("使用");
 
     //送球完毕
     digitalWrite(orderSend,LOW);
@@ -184,17 +188,11 @@ void pink()
   Serial.println("Pink");
   Serial.println(digitalRead(orderBack));
 
-  //!程序卡住等待炮台就绪时拉高电位 
-  while(!digitalRead(orderBack)){}
-  
-  //炮台就绪后送球上去
-    int bu = digitalRead(pushButtonU);
-    int bm = !digitalRead(pushButtonM);
-    while(bu)
-    {
-      Step(0,50);
-      bu = digitalRead(pushButtonU);
-    }
+  //!程序卡住等待炮台就绪时拉低电位 
+  while(digitalRead(orderBack)){Serial.println("等待炮台");}
+
+    back_to_origin();
+
     Serial.println("粉色");
 
     //送球完毕
@@ -217,7 +215,7 @@ void Ready()
   ///寻找最右限位开关
   while(bu)
   {
-      Step(1,10);
+      Step(1,50);
       bu = digitalRead(pushButtonU);
       bm = !digitalRead(pushButtonM);
       Serial.println("***************");
@@ -226,9 +224,36 @@ void Ready()
   ///如果找到最右限位就反转找光电门
     while(bm)
     {
-      Step(0,10);
+      Step(0,50);
       bm = !digitalRead(pushButtonM);
       Serial.println("********U-M");
+      Serial.println(digitalRead(pushButtonM));
+    }
+}
+
+/**
+ * @brief 回原点
+ * 
+ */
+void back_to_origin()
+{
+    //炮台就绪后送球上去
+    int bu = digitalRead(pushButtonU);
+    int bm = !digitalRead(pushButtonM);
+    while(bu)
+    {
+      Step(1,50);
+      bu = digitalRead(pushButtonU);
+      Serial.println("撞限位");
+    }
+  ///如果找到最右限位就反转找光电门
+     Serial.println(!digitalRead(pushButtonM));
+     bm = !digitalRead(pushButtonM);
+    while(bm)
+    {
+      Step(0,50);
+      bm = !digitalRead(pushButtonM);
+      Serial.println("撞光电");
       Serial.println(digitalRead(pushButtonM));
     }
 }

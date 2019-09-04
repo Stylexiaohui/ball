@@ -128,7 +128,7 @@ void judge()
     }
     else
     {
-      if (aver < 150&&g+b<220)
+      if (aver < 150&&g+b<300)
       {
         digitalWrite(orderOut1, LOW);
         digitalWrite(orderOut2, LOW);
