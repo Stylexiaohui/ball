@@ -16,10 +16,8 @@ SoftwareSerial mySerial(10, 11); // RX, TX
 //!信号输出引脚
 #define orderOut1 3
 #define orderOut2 4
-
 unsigned char Re_buf[11], counter = 0;
 unsigned char sign = 0;
-
 //!从GY33读来的颜色值
 byte r = 0, g = 0,b=0;
 
@@ -110,6 +108,71 @@ void judge()
     Serial.println(aver);
 
     //!是黑色的话
+    
+    if(aver<90)
+    {
+      if(r<90)//黑色
+        {
+          if (state)//abandon
+          {
+            digitalWrite(orderOut1, LOW);
+            digitalWrite(orderOut2, HIGH);
+            Serial.print("黑色1");Serial.println(digitalRead(orderOut2));
+          }
+          else //use
+          {
+            digitalWrite(orderOut1, HIGH);
+            digitalWrite(orderOut2, LOW);
+            Serial.print("黑色2");
+          }
+        }
+        else 
+        {
+          digitalWrite(orderOut1,LOW);
+          digitalWrite(orderOut2, LOW);
+          Serial.println("无球");
+        }
+    }
+    else
+    {
+      if(aver<190)
+      {
+          digitalWrite(orderOut1,HIGH);
+          digitalWrite(orderOut2, HIGH);
+          Serial.println("Pink");
+      }
+      else
+      {
+        if(state)
+        {
+          digitalWrite(orderOut1,HIGH);
+          digitalWrite(orderOut2, LOW);
+          Serial.println("白色1");
+          Serial.println(digitalRead(orderOut1));
+        }
+        else
+        {
+          digitalWrite(orderOut1,LOW);
+          digitalWrite(orderOut2,HIGH);
+          Serial.println("白色2");
+          Serial.println(digitalRead(orderOut1));
+          Serial.println(digitalRead(orderOut2));
+        }
+      }
+    }
+  }
+}
+     
+
+
+
+
+
+
+
+
+
+/*     
     if (aver < 90&& r<90)
     {
       Serial.print("黑色");
@@ -128,7 +191,7 @@ void judge()
     }
     else
     {
-      if (aver < 150&&g+b<300)
+      if (r> 170&&(g+b)<300)
       {
         digitalWrite(orderOut1, LOW);
         digitalWrite(orderOut2, LOW);
@@ -163,6 +226,7 @@ void judge()
     }
   }
 }
+*/
 void loop()
 {
         Serial.print("r:");

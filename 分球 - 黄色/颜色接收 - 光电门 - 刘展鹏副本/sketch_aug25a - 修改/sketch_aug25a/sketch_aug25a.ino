@@ -25,18 +25,13 @@ void setup() {
   
   IO_init();
 
-  Ready();
+//  Ready();
 }
 
 void loop()
-{ 
-  delay(4000);   
-  Serial.println("loop");
-     Serial.print("colorPin1:");
-     Serial.print(digitalRead(colorPin1));
-     Serial.print("       colorPin2:");
-     Serial.println(digitalRead(colorPin2));
-     //Serial.println(digitalRead(orderRun));
+{    Serial.println("loop");
+     Serial.println(digitalRead(orderRun));
+     Serial.println(digitalRead(orderSend));
   ///主机发来靠边信号
   int data = 0;
   for (int i = 0; i < 10; i++)
@@ -44,17 +39,18 @@ void loop()
     delay(2);
     data += digitalRead(orderPin);
   }
-
   //!如果现在是靠边状态
   if (data < 5)
   {
+  Ready();
+  delay(800);
     Serial.println("judge");
     int color1=0,color2=0;
-    Serial.print("ATTACHED_pushButtonm: ");Serial.print(ATTACHED_pushButtonm);
+//    Serial.print("ATTACHED_pushButtonm");Serial.print(ATTACHED_pushButtonm);
     for (int a = 0; a < 20; a++)
     {
       delay(2);
-      if (ATTACHED_pushButtonm)
+ //     if (ATTACHED_pushButtonm)
       {
         color1 += digitalRead(colorPin1);
         color2 += digitalRead(colorPin2);
@@ -75,10 +71,12 @@ void loop()
       {//!丢弃
         pink();
         digitalWrite(orderRun,HIGH);
+        Serial.println("丢弃");
       }
-      else 
+      else
       {//!跑
         digitalWrite(orderRun,LOW);
+        digitalWrite(orderSend,LOW);
         Serial.println("跑");
       }
     }
@@ -94,6 +92,7 @@ void loop()
       {//!粉色
         use();
         digitalWrite(orderRun,HIGH);
+        Serial.println("粉色");
       }
     }
   }
@@ -173,15 +172,16 @@ void use()
 {
   //！要求射球启动
   digitalWrite(orderSend,LOW);
-  Serial.print("orderSend:");
-  Serial.println("使用");
-  Serial.println(digitalRead(orderSend));
   delay(1500);
-  back_to_origin();
-  Serial.print("orderSend:");
-  Serial.println("使用");
-  Serial.println(digitalRead(orderSend));
-}
+  //!程序卡住等待炮台就绪时拉高电位 
+//  if (!digitalRead(orderBack)) 
+ { //炮台就绪后送球上去
+   back_to_origin();
+   Serial.println("使用");
+
+    //送球完毕
+    //digitalWrite(orderSend,LOW);
+}}
 
 /**
  * @brief 送粉球上炮台
@@ -191,15 +191,19 @@ void pink()
 {
   //！要求射球启动
   digitalWrite(orderSend,HIGH);
-  Serial.print("orderSend:");
-  Serial.println("丢弃");
-  Serial.println(digitalRead(orderSend));
-  delay(1500);
-  back_to_origin();
-  Serial.print("orderSend:");
-  Serial.println("丢弃");
-  Serial.println(digitalRead(orderSend));
-}
+  delay(2000);
+  Serial.println("Pink");
+  Serial.println(digitalRead(orderBack));
+  //!程序卡住等待炮台就绪时拉低电位 
+//  if(!digitalRead(orderBack))//{Serial.println("等待炮台");}
+
+   { back_to_origin();
+
+    Serial.println("粉色");
+
+    //送球完毕
+    //digitalWrite(orderSend,LOW);
+}}
 
 /**
  * @brief 准备函数
@@ -220,7 +224,7 @@ void Ready()
       Step(1,50);
       bu = digitalRead(pushButtonU);
       bm = !digitalRead(pushButtonM);
-      Serial.println("***************");
+   //   Serial.println("***************");
   }
 
   ///如果找到最右限位就反转找光电门
@@ -229,7 +233,7 @@ void Ready()
       Step(0,50);
       bm = !digitalRead(pushButtonM);
       Serial.println("********U-M");
-      Serial.println(digitalRead(pushButtonM));
+ //     Serial.println(digitalRead(pushButtonM));
     }
 }
 
@@ -244,23 +248,19 @@ void back_to_origin()
     int bm = !digitalRead(pushButtonM);
     while(bu)
     {
-      Step(1,50);
+      Step(1,20);
       bu = digitalRead(pushButtonU);
-      Serial.println("撞限位");
-        Serial.print("orderSend:");
-        Serial.println("丢弃");
-        Serial.println(digitalRead(orderSend));
+  //    Serial.println("撞限位");
     }
   ///如果找到最右限位就反转找光电门
-     //Serial.println(!digitalRead(pushButtonM));
+     Serial.println(!digitalRead(pushButtonM));
      bm = !digitalRead(pushButtonM);
     while(bm)
     {
-      Step(0,50);
+      Step(0,10);
       bm = !digitalRead(pushButtonM);
-      Serial.println("撞光电");
-        Serial.print("orderSend:");
-  Serial.println("丢弃");
-  Serial.println(digitalRead(orderSend));
+//      Serial.println("撞光电");  
+      Serial.println(digitalRead(pushButtonM));
     }
+    digitalWrite(orderRun,HIGH);
 }

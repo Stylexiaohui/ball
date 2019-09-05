@@ -26,10 +26,10 @@ void setup() {
   pinMode(pushButtonU, INPUT_PULLUP);
   pinMode(colorPin1, INPUT_PULLUP);
   pinMode(colorPin2, INPUT_PULLUP);
-  digitalWrite(orderRun, LOW);
+  digitalWrite(orderRun, HIGH);
   digitalWrite(stepPin, LOW);
   digitalWrite(dirPin, HIGH);
-  digitalWrite(orderSend, LOW);
+  digitalWrite(orderSend, HIGH);
 }
 void Step(int s)
 {
@@ -65,7 +65,7 @@ void abandon()
 */
 void use()
 {
-  digitalWrite(dirPin, LOW);
+  digitalWrite(dirPin, HIGH);
   if (digitalRead(orderBack))//炮台就绪时拉高电位
   {
     int bu = digitalRead(pushButtonU);
@@ -76,12 +76,12 @@ void use()
       bu = digitalRead(pushButtonU);
       Serial.println("Use");
     }
-    digitalWrite(dirPin, HIGH);
+    digitalWrite(dirPin, LOW);
     Serial.println("使用");
-    digitalWrite(orderSend,LOW);
+    digitalWrite(orderSend,HIGH);
   }
     Serial.println("Use");
-    digitalWrite(orderRun, LOW);
+    digitalWrite(orderRun, HIGH);
 }
 
 /**
