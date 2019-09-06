@@ -25,7 +25,7 @@ void setup() {
   
   IO_init();
 
-//  Ready();
+  Ready();
 }
 
 void loop()
@@ -39,10 +39,11 @@ void loop()
     delay(2);
     data += digitalRead(orderPin);
   }
+  data = 2;
   //!如果现在是靠边状态
   if (data < 5)
   {
-  Ready();
+  //Ready();
   delay(800);
     Serial.println("judge");
     int color1=0,color2=0;
@@ -50,7 +51,7 @@ void loop()
     for (int a = 0; a < 20; a++)
     {
       delay(2);
- //     if (ATTACHED_pushButtonm)
+    if (ATTACHED_pushButtonm)
       {
         color1 += digitalRead(colorPin1);
         color2 += digitalRead(colorPin2);
@@ -250,16 +251,16 @@ void back_to_origin()
     {
       Step(1,20);
       bu = digitalRead(pushButtonU);
-  //    Serial.println("撞限位");
+      Serial.println("撞限位");
     }
   ///如果找到最右限位就反转找光电门
      Serial.println(!digitalRead(pushButtonM));
      bm = !digitalRead(pushButtonM);
     while(bm)
     {
-      Step(0,10);
-      bm = !digitalRead(pushButtonM);
-//      Serial.println("撞光电");  
+      Step(0,20);
+      bm = !digitalRead(pushButtonM); 
+      Serial.println("撞光电");  
       Serial.println(digitalRead(pushButtonM));
     }
     digitalWrite(orderRun,HIGH);

@@ -1,6 +1,6 @@
 {
-    "port": "COM4",
+    "port": "COM10",
     "board": "arduino:avr:nano",
     "configuration": "cpu=atmega328old",
-    "sketch": "sketch_aug25a.ino"
+    "sketch": "sketch_aug25a\\sketch_aug25a.ino"
 }

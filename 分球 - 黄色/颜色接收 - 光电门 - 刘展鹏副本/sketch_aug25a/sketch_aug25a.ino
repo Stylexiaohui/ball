@@ -30,7 +30,10 @@ void setup() {
 
 void loop()
 { 
-  delay(4000);   
+  Serial.print("digitalRead(pushButtonM):");
+  Serial.println(digitalRead(pushButtonM));
+  
+  delay(1000);   
   Serial.println("loop");
      Serial.print("colorPin1:");
      Serial.print(digitalRead(colorPin1));
@@ -74,11 +77,9 @@ void loop()
       if(color2>=10)
       {//!丢弃
         pink();
-        digitalWrite(orderRun,HIGH);
       }
       else 
       {//!跑
-        digitalWrite(orderRun,LOW);
         Serial.println("跑");
       }
     }
@@ -87,13 +88,11 @@ void loop()
       if(color2<10)
       {//!我方球
       Serial.println("有用球");
-        use(); 
-        digitalWrite(orderRun,HIGH);    
+        use();  
       }
       else 
       {//!粉色
         use();
-        digitalWrite(orderRun,HIGH);
       }
     }
   }
@@ -176,7 +175,7 @@ void use()
   Serial.print("orderSend:");
   Serial.println("使用");
   Serial.println(digitalRead(orderSend));
-  delay(1500);
+  delay(100);
   back_to_origin();
   Serial.print("orderSend:");
   Serial.println("使用");
@@ -194,7 +193,7 @@ void pink()
   Serial.print("orderSend:");
   Serial.println("丢弃");
   Serial.println(digitalRead(orderSend));
-  delay(1500);
+  delay(100);
   back_to_origin();
   Serial.print("orderSend:");
   Serial.println("丢弃");
