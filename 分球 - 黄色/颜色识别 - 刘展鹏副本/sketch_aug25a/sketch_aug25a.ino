@@ -105,7 +105,7 @@ void judge()
     //粉色 r:255,g:181,b:236
     //跑 r:255,g:78,b:107
     //白色 r:255,g:255,b:255
-    Serial.println(aver);
+//    Serial.println(aver);
 
     //!是黑色的话
     
@@ -117,12 +117,12 @@ void judge()
           {
             digitalWrite(orderOut1, LOW);
             digitalWrite(orderOut2, HIGH);
-            Serial.print("黑色1");Serial.println(digitalRead(orderOut2));
+            Serial.print("黑色1");Serial.println(digitalRead(orderOut1));Serial.println(digitalRead(orderOut2));
           }
           else //use
           {
             digitalWrite(orderOut1, HIGH);
-            digitalWrite(orderOut2, LOW);
+            digitalWrite(orderOut2, LOW);Serial.println(digitalRead(orderOut1));Serial.println(digitalRead(orderOut2));
             Serial.print("黑色2");
           }
         }
@@ -130,7 +130,7 @@ void judge()
         {
           digitalWrite(orderOut1,LOW);
           digitalWrite(orderOut2, LOW);
-          Serial.println("无球");
+     //     Serial.println("无球");
         }
     }
     else
@@ -149,6 +149,7 @@ void judge()
           digitalWrite(orderOut2, LOW);
           Serial.println("白色1");
           Serial.println(digitalRead(orderOut1));
+          Serial.println(digitalRead(orderOut2));
         }
         else
         {
@@ -157,6 +158,7 @@ void judge()
           Serial.println("白色2");
           Serial.println(digitalRead(orderOut1));
           Serial.println(digitalRead(orderOut2));
+          Serial.println(digitalRead(orderOut1));Serial.println(digitalRead(orderOut2));
         }
       }
     }
@@ -243,9 +245,11 @@ void loop()
     Data += digitalRead(Switch);
   }
   if (Data > 5)
-    state = 1;
+  {  state = 1;  Serial.println("抽到红方球");
+  }
   else
-    state = 0;
+   { state = 0;  Serial.println("抽到蓝方");
+   }
   judge();
   delay(10);
 }

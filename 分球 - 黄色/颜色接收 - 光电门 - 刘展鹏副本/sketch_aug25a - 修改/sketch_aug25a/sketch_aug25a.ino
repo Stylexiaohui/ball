@@ -12,7 +12,7 @@
 #define stepPin 3     //步进电机脉冲输入引脚
 #define dirPin 4      //步进电机转动方向引脚
 #define orderRun 5    //本机————>主机|“分球结束，继续跑动”
-#define orderPin A0   //主机————>本机|“靠边”
+#define orderPin A4   //主机————>本机|“靠边”
 #define orderBack A1 //炮台————>本机|“炮台就绪”
 #define pushButtonM A3 //分球原点光电门
 #define pushButtonU A2 //送球限位 A2+GND
@@ -29,8 +29,7 @@ void setup() {
 }
 
 void loop()
-{    Serial.println("loop");
-     Serial.println(digitalRead(orderRun));
+{    Serial.print("loop");
      Serial.println(digitalRead(orderSend));
   ///主机发来靠边信号
   int data = 0;
@@ -39,12 +38,11 @@ void loop()
     delay(2);
     data += digitalRead(orderPin);
   }
-  data = 2;
+  //data = 2;
   //!如果现在是靠边状态
   if (data < 5)
   {
-  //Ready();
-  delay(800);
+    delay(2000);
     Serial.println("judge");
     int color1=0,color2=0;
 //    Serial.print("ATTACHED_pushButtonm");Serial.print(ATTACHED_pushButtonm);
@@ -71,12 +69,10 @@ void loop()
       if(color2>=10)
       {//!丢弃
         pink();
-        digitalWrite(orderRun,HIGH);
         Serial.println("丢弃");
       }
       else
       {//!跑
-        digitalWrite(orderRun,LOW);
         digitalWrite(orderSend,LOW);
         Serial.println("跑");
       }
@@ -87,12 +83,10 @@ void loop()
       {//!我方球
       Serial.println("有用球");
         use(); 
-        digitalWrite(orderRun,HIGH);    
       }
       else 
       {//!粉色
         use();
-        digitalWrite(orderRun,HIGH);
         Serial.println("粉色");
       }
     }
@@ -225,7 +219,7 @@ void Ready()
       Step(1,50);
       bu = digitalRead(pushButtonU);
       bm = !digitalRead(pushButtonM);
-   //   Serial.println("***************");
+      Serial.println("***************");
   }
 
   ///如果找到最右限位就反转找光电门
@@ -261,7 +255,7 @@ void back_to_origin()
       Step(0,20);
       bm = !digitalRead(pushButtonM); 
       Serial.println("撞光电");  
-      Serial.println(digitalRead(pushButtonM));
+      //Serial.println(digitalRead(pushButtonM));
     }
-    digitalWrite(orderRun,HIGH);
+    //digitalWrite(orderRun,HIGH);
 }
